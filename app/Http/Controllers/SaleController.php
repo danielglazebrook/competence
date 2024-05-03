@@ -15,9 +15,22 @@ class SaleController extends Controller
      */
     public function index()
     {
+        $sales = Sale::orderByDesc('created_at')->get();
+        $products = Product::all();
+
+        foreach ($sales as $key => $sale) {
+            foreach($products as $p_key => $product) {
+                if ($product['id'] === $sale['product_id']) {
+                    $sales[$key]['name'] = $product['name'];
+                }
+            }
+
+            $sales[$key]['sale_date_time'] = $sale['created_at']->format('Y-m-d h:i');
+        }
+
         return view('pages.sales', [
-            'sales' => Sale::all(),
-            'product' => Product::all(),
+            'sales' => $sales,
+            'products' => $products,
         ]);
     }
 

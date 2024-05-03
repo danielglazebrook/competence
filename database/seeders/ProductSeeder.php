@@ -14,8 +14,14 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         DB::table('products')->insert([
+            [
             'name' => 'Gold',
             'profit_margin' => '25'
+            ],
+            [
+            'name' => 'Arabic',
+            'profit_margin' => '15'
+            ]
         ]);
     }
 }

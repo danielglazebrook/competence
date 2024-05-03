@@ -7,6 +7,15 @@
         <h1 class="text-4xl">New ☕️ Sales</h1>
 
         <section class="flex flex-row items-end mt-10">
+             <div class="mr-5">
+                <label class="block text-sm font-medium leading-6 text-gray-900" for="quantity">Product</label>
+                <div class="relative mt-2 rounded-md shadow-sm">
+                    <select class="block w-full rounded-md border-0 py-1.5 pl-2 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" name="quantity" v-model="selectedProductIndex">
+                        <option v-for="(product, index) in products" :selected="selectedProductIndex === index" :value="index" v-text="product.name"></option>
+                    </select>
+                </div>
+            </div>
+
             <div class="mr-5">
                 <label class="block text-sm font-medium leading-6 text-gray-900" for="quantity">Quantity</label>
                 <div class="relative mt-2 rounded-md shadow-sm">
@@ -42,17 +51,21 @@
             <table class="table-auto mt-5 w-full text-left border-2 border-solid border-black">
                 <thead>
                     <tr class="bg-gray-300">
-                        <th>Quantity</th>
+                        <th>Product</th>
+                        <th class="border-l-2 border-black">Quantity</th>
                         <th class="border-l-2 border-black">Unit Cost</th>
                         <th class="border-l-2 border-black">Selling Price</th>
+                        <th class="border-l-2 border-black">Sold at</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     <tr v-for="sale in sales">
-                        <td class="border-b-2 border-black" v-text="sale.quantity"></td>
+                        <td class="border-b-2 border-black" v-text="sale.name"></td>
+                        <td class="border-l-2 border-black border-b-2" v-text="sale.quantity"></td>
                         <td class="border-l-2 border-black border-b-2" v-text="'£' + sale.unit_cost"></td>
                         <td class="border-l-2 border-black border-b-2" v-text="'£' + Math.ceil([(cost_price(sale.quantity, sale.unit_cost) / (1 - (25 / 100))) + 10.00] * 100) / 100"></td>
+                        <td class="border-l-2 border-black border-b-2" v-text="sale.sale_date_time"></td>
                     </tr>
                 </tbody>
             </table>
@@ -64,7 +77,8 @@
     var app = new Vue({
         el: '#app',
         data: {
-            product: <?= $product; ?>,
+            products: <?= $products; ?>,
+            selectedProductIndex: 0,
             sales: <?= $sales; ?>,
             quantity: null,
             unit_cost: null,
@@ -74,8 +88,13 @@
         },
         computed: {
             selling_price: function() {
-                return Math.ceil([(this.cost_price() / (1 - (this.product[0].profit_margin / 100))) + this.shipping_cost] * 100) / 100
+                return Math.ceil([(this.cost_price() / (1 - (this.products[this.selectedProductIndex].profit_margin / 100))) + this.shipping_cost] * 100) / 100
             },
+            date_format: function(date) {
+                var date = new Date
+
+                return date.format
+            }
         },
         methods: {
             cost_price: function(quantity = null, unit_cost = null) {
@@ -99,7 +118,7 @@
                     method: 'post',
                     url: '/sales/create',
                     data: {
-                        product_id: this.product[0].id,
+                        product_id: this.products[this.selectedProductIndex].id,
                         quantity: this.quantity,
                         unit_cost: this.unit_cost,
                     }
@@ -107,6 +126,7 @@
                     if (request.data === 1) {
                         this.successMessage = "Sale has been recorded successfully"
                         setTimeout(() => this.failureMessage = false, 2000);
+                        location.reload()
                     } else {
                         this.failureMessage = "Sale was not recorded - please try again later"
                         setTimeout(() => this.failureMessage = false, 2000);
