@@ -107,6 +107,7 @@
                     if (request.data === 1) {
                         this.successMessage = "Sale has been recorded successfully"
                         setTimeout(() => this.failureMessage = false, 2000);
+                        location.reload()
                     } else {
                         this.failureMessage = "Sale was not recorded - please try again later"
                         setTimeout(() => this.failureMessage = false, 2000);

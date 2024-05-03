@@ -16,7 +16,7 @@ class SaleController extends Controller
     public function index()
     {
         return view('pages.sales', [
-            'sales' => Sale::all(),
+            'sales' => Sale::orderByDesc('created_at')->get(),
             'product' => Product::all(),
         ]);
     }
